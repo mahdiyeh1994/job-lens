@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -11,6 +13,14 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select';
+import ErrorMessage from '@/components/ui/errorMessage';
 import {
   CalendarDaysIcon,
   Link2Icon,
@@ -25,34 +35,44 @@ interface AddApplicationDialogProps {
   readonly onOpenChange: (open: boolean) => void;
 }
 
-interface FormValues {
-  companyName: string;
-  jobTitle: string;
-  status: string;
-  dateApplied: string;
-  salary: string;
-  location: string;
-  jobUrl: string;
-  nextStep: string;
-};
+const applicationSchema = z.object({
+  companyName: z.string().min(1, 'Company name is required'),
+  jobTitle: z.string().min(1, 'Job title is required'),
+  status: z.enum(['Applied', 'Interview', 'Offer', 'Rejected']),
+  dateApplied: z.string().optional().nullable(),
+  salary: z.string().optional().nullable(),
+  location: z.enum(['Remote', 'On-site', 'Hybrid']),
+  jobUrl: z.url('Enter a valid URL').or(z.literal('')).optional(),
+  nextStep: z.string().optional().nullable(),
+});
+
+type FormValues = z.infer<typeof applicationSchema>;
 
 export default function AddApplicationDialog({
   open,
   onOpenChange,
 }: AddApplicationDialogProps) {
-  const { register, handleSubmit, reset, setValue, watch } =
-    useForm<FormValues>({
-      defaultValues: {
-        companyName: '',
-        jobTitle: '',
-        status: 'Applied',
-        dateApplied: '',
-        salary: '',
-        location: 'Remote',
-        jobUrl: '',
-        nextStep: '',
-      },
-    });
+  const {
+    register,
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(applicationSchema),
+    defaultValues: {
+      companyName: '',
+      jobTitle: '',
+      status: 'Applied',
+      dateApplied: '',
+      salary: '',
+      location: 'Remote',
+      jobUrl: '',
+      nextStep: '',
+    },
+  });
 
   const location = watch('location');
 
@@ -61,11 +81,11 @@ export default function AddApplicationDialog({
       reset();
     }
   }, [open, reset]);
-
+  console.log(errors);
   const onSubmit = (values: FormValues) => {
-    onOpenChange(false);
-    reset();
-    console.log(values);
+    // onOpenChange(false);
+    // reset();
+    console.log('submited', values);
   };
 
   const handleCancel = () => {
@@ -74,7 +94,7 @@ export default function AddApplicationDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} >
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full md:min-w-5xl rounded-3xl bg-white p-6 shadow-2xl shadow-slate-200/50 dark:bg-slate-950 dark:shadow-slate-950/40 sm:p-8">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-2">
@@ -99,6 +119,7 @@ export default function AddApplicationDialog({
                 placeholder="e.g. Digikala, Shopify, Vercel"
                 {...register('companyName', { required: true })}
               />
+              <ErrorMessage>{errors.companyName?.message}</ErrorMessage>
             </label>
 
             <label className="space-y-2">
@@ -110,6 +131,7 @@ export default function AddApplicationDialog({
                 placeholder="e.g. Senior Frontend Developer"
                 {...register('jobTitle', { required: true })}
               />
+              <ErrorMessage>{errors.jobTitle?.message}</ErrorMessage>
             </label>
           </div>
 
@@ -118,16 +140,28 @@ export default function AddApplicationDialog({
               <span className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                 Application Status <span className="text-slate-400">*</span>
               </span>
-              <div className="flex h-10 items-center rounded-lg border border-input bg-transparent px-3">
-                <select
-                  {...register('status', { required: true })}
-                  className="h-full w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100"
-                >
-                  <option>Applied</option>
-                  <option>Interview</option>
-                  <option>Offer</option>
-                  <option>Rejected</option>
-                </select>
+              <div>
+                <Controller
+                  control={control}
+                  name="status"
+                  render={({ field }) => (
+                    <Select
+                      onValueChange={(val) => field.onChange(val)}
+                      value={field.value}
+                    >
+                      <SelectTrigger className="h-full w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Applied">Applied</SelectItem>
+                        <SelectItem value="Interview">Interview</SelectItem>
+                        <SelectItem value="Offer">Offer</SelectItem>
+                        <SelectItem value="Rejected">Rejected</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                <ErrorMessage>{errors.status?.message}</ErrorMessage>
               </div>
             </label>
 
@@ -189,6 +223,7 @@ export default function AddApplicationDialog({
                 <span className="text-slate-400 text-xs">(optional)</span>
               </span>
               <Input placeholder="https://..." {...register('jobUrl')} />
+              <ErrorMessage>{errors.jobUrl?.message}</ErrorMessage>
             </label>
 
             <label className="space-y-2">

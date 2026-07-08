@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { Button } from '@/components/ui/button';
 import AddApplicationDialog from '@/components/form/addApplicationDialog';
 import { useState } from 'react';
