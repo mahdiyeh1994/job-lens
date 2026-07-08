@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useTransition } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,6 +20,11 @@ import {
   SelectItem,
 } from '@/components/ui/select';
 import ErrorMessage from '@/components/ui/errorMessage';
+import { saveApplication } from '@/app/actions';
+import {
+  applicationSchema,
+  type ApplicationFormValues,
+} from '@/lib/application';
 import {
   CalendarDaysIcon,
   Link2Icon,
@@ -35,23 +39,13 @@ interface AddApplicationDialogProps {
   readonly onOpenChange: (open: boolean) => void;
 }
 
-const applicationSchema = z.object({
-  companyName: z.string().min(1, 'Company name is required'),
-  jobTitle: z.string().min(1, 'Job title is required'),
-  status: z.enum(['Applied', 'Interview', 'Offer', 'Rejected']),
-  dateApplied: z.string().optional().nullable(),
-  salary: z.string().optional().nullable(),
-  location: z.enum(['Remote', 'On-site', 'Hybrid']),
-  jobUrl: z.url('Enter a valid URL').or(z.literal('')).optional(),
-  nextStep: z.string().optional().nullable(),
-});
-
-type FormValues = z.infer<typeof applicationSchema>;
+type FormValues = ApplicationFormValues;
 
 export default function AddApplicationDialog({
   open,
   onOpenChange,
 }: AddApplicationDialogProps) {
+  const [isPending, startTransition] = useTransition();
   const {
     register,
     control,
@@ -81,11 +75,18 @@ export default function AddApplicationDialog({
       reset();
     }
   }, [open, reset]);
-  console.log(errors);
+
   const onSubmit = (values: FormValues) => {
-    // onOpenChange(false);
-    // reset();
-    console.log('submited', values);
+    startTransition(() => {
+      saveApplication(values)
+        .then(() => {
+          onOpenChange(false);
+          reset();
+        })
+        .catch((error) => {
+          console.error('Failed to save application', error);
+        });
+    });
   };
 
   const handleCancel = () => {
