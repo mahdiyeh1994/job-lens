@@ -45,7 +45,7 @@ export default function AddApplicationDialog({
   open,
   onOpenChange,
 }: AddApplicationDialogProps) {
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const {
     register,
     control,
@@ -69,6 +69,11 @@ export default function AddApplicationDialog({
   });
 
   const location = watch('location');
+  const locationOptions: ApplicationFormValues['location'][] = [
+    'Remote',
+    'On-site',
+    'Hybrid',
+  ];
 
   useEffect(() => {
     if (!open) {
@@ -193,7 +198,7 @@ export default function AddApplicationDialog({
                 Location / Work Type
               </div>
               <div className="flex flex-wrap gap-2">
-                {['Remote', 'On-site', 'Hybrid'].map((option) => (
+                {locationOptions.map((option) => (
                   <Button
                     key={option}
                     variant={location === option ? 'default' : 'outline'}
