@@ -30,53 +30,21 @@ const columns = [
   },
 ] as const;
 
-const applications = [
-  {
-    companyName: 'Vercel',
-    jobTitle: 'Senior Product Designer',
-    status: 'Applied',
-    dateApplied: 'Jun 10',
-    location: 'Remote',
-    salary: '$165k - $195k',
-  },
-  {
-    companyName: 'Linear',
-    jobTitle: 'Frontend Engineer',
-    status: 'Interview',
-    dateApplied: 'Jun 08',
-    location: 'Hybrid',
-    salary: '$140k - $170k',
-  },
-  {
-    companyName: 'Notion',
-    jobTitle: 'Staff Engineer',
-    status: 'Interview',
-    dateApplied: 'Jun 01',
-    location: 'On-site',
-    salary: '$180k - $220k',
-  },
-  {
-    companyName: 'Figma',
-    jobTitle: 'Design Systems Lead',
-    status: 'Offer',
-    dateApplied: 'May 24',
-    location: 'Remote',
-    salary: '$190k - $230k',
-  },
-  {
-    companyName: 'Stripe',
-    jobTitle: 'Platform Engineer',
-    status: 'Rejected',
-    dateApplied: 'May 17',
-    location: 'Remote',
-    salary: '$160k - $200k',
-  },
-];
+interface KanbanBoardProps {
+  applications: readonly {
+    companyName: string;
+    jobTitle: string;
+    status: 'Applied' | 'Interview' | 'Offer' | 'Rejected';
+    dateApplied: string;
+    salary: string;
+    location: 'Remote' | 'On-site' | 'Hybrid';
+  }[];
+}
 
-const KanbanBoard = () => {
+const KanbanBoard = ({ applications }: KanbanBoardProps) => {
   return (
     <div className="overflow-x-auto pb-2">
-      <div className="grid min-w-230 gap-4 xl:grid-cols-4 md:grid-cols-2">
+      <div className="grid min-w-230 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {columns.map((column) => {
           const cards = applications.filter(
             (application) => application.status === column.title
