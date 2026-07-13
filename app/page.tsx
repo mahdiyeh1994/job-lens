@@ -47,17 +47,18 @@ export default async function Home() {
       createdAt: 'desc',
     },
   });
-  console.log('applications', applications);
-
   const boardApplications: BoardApplication[] = applications.map(
     (application) => ({
+      id: application.id,
       companyName: application.companyName,
       jobTitle: application.jobTitle,
       status: (application.status as BoardApplication['status']) ?? 'Applied',
-      dateApplied: application.dateApplied ?? 'Not provided',
-      salary: application.salary ?? 'Pending',
+      dateApplied: application.dateApplied ?? '',
+      salary: application.salary ?? '',
       location:
         (application.location as BoardApplication['location']) ?? 'Remote',
+      jobUrl: application.jobUrl ?? '',
+      nextStep: application.nextStep ?? '',
     })
   );
 

@@ -3,6 +3,7 @@
 import { useEffect, useTransition } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -37,14 +38,30 @@ import {
 interface AddApplicationDialogProps {
   readonly open: boolean;
   readonly onOpenChange: (open: boolean) => void;
+  readonly initialValues?: Partial<FormValues>;
+  readonly editingId?: string;
 }
 
 type FormValues = ApplicationFormValues;
 
+const buildDefaultValues = (values?: Partial<FormValues>): FormValues => ({
+  companyName: values?.companyName ?? '',
+  jobTitle: values?.jobTitle ?? '',
+  status: values?.status ?? 'Applied',
+  dateApplied: values?.dateApplied ?? '',
+  salary: values?.salary ?? '',
+  location: values?.location ?? 'Remote',
+  jobUrl: values?.jobUrl ?? '',
+  nextStep: values?.nextStep ?? '',
+});
+
 export default function AddApplicationDialog({
   open,
   onOpenChange,
+  initialValues,
+  editingId,
 }: AddApplicationDialogProps) {
+  const router = useRouter();
   const [, startTransition] = useTransition();
   const {
     register,
@@ -56,16 +73,7 @@ export default function AddApplicationDialog({
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(applicationSchema),
-    defaultValues: {
-      companyName: '',
-      jobTitle: '',
-      status: 'Applied',
-      dateApplied: '',
-      salary: '',
-      location: 'Remote',
-      jobUrl: '',
-      nextStep: '',
-    },
+    defaultValues: buildDefaultValues(initialValues),
   });
 
   const location = watch('location');
@@ -77,16 +85,22 @@ export default function AddApplicationDialog({
 
   useEffect(() => {
     if (!open) {
-      reset();
+      reset(buildDefaultValues());
+      return;
     }
-  }, [open, reset]);
+
+    reset(buildDefaultValues(initialValues));
+  }, [open, reset, initialValues]);
+
+  const isEditing = Boolean(editingId);
 
   const onSubmit = (values: FormValues) => {
     startTransition(() => {
-      saveApplication(values)
+      saveApplication(values, editingId)
         .then(() => {
           onOpenChange(false);
-          reset();
+          reset(buildDefaultValues());
+          router.refresh();
         })
         .catch((error) => {
           console.error('Failed to save application', error);
@@ -96,7 +110,7 @@ export default function AddApplicationDialog({
 
   const handleCancel = () => {
     onOpenChange(false);
-    reset();
+    reset(buildDefaultValues());
   };
 
   return (
@@ -105,11 +119,12 @@ export default function AddApplicationDialog({
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-2">
             <DialogTitle className="text-2xl font-semibold text-slate-950 dark:text-slate-50">
-              Add New Job Application
+              {isEditing ? 'Edit Job Application' : 'Add New Job Application'}
             </DialogTitle>
             <DialogDescription className="text-sm text-slate-500 dark:text-slate-400">
-              Track your application and stay organized across company, status,
-              and next steps.
+              {isEditing
+                ? 'Update the details for this application and keep your board in sync.'
+                : 'Track your application and stay organized across company, status, and next steps.'}
             </DialogDescription>
           </div>
         </div>
@@ -193,10 +208,10 @@ export default function AddApplicationDialog({
             </label>
 
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                 <MapPinIcon className="h-4 w-4" />
                 Location / Work Type
-              </div>
+              </label>
               <div className="flex flex-wrap gap-2">
                 {locationOptions.map((option) => (
                   <Button
@@ -250,7 +265,9 @@ export default function AddApplicationDialog({
               <Button variant="outline" type="button" onClick={handleCancel}>
                 Cancel
               </Button>
-              <Button type="submit">Save Application</Button>
+              <Button type="submit">
+                {isEditing ? 'Save Changes' : 'Save Application'}
+              </Button>
             </div>
           </DialogFooter>
         </form>

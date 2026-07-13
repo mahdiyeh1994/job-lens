@@ -4,12 +4,15 @@ export type ApplicationStatus = 'Applied' | 'Interview' | 'Offer' | 'Rejected';
 export type ApplicationLocation = 'Remote' | 'On-site' | 'Hybrid';
 
 export interface BoardApplication {
+  id: string;
   companyName: string;
   jobTitle: string;
   status: ApplicationStatus;
   dateApplied: string;
   salary: string;
   location: ApplicationLocation;
+  jobUrl: string;
+  nextStep: string;
 }
 
 export const applicationSchema = z.object({

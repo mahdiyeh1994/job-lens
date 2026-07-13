@@ -10,7 +10,7 @@ const Navbar = () => {
     <header className="flex items-center justify-between p-4 border-b border-border-light bg-white">
       <div className="flex items-center gap-2">
         <h1 className=" text-primary">JobLens</h1>
-        <Input placeholder="Search Companies or position" />
+        <Input className="w-64" placeholder="Search Companies or position" />
       </div>
       <div>
         <Button onClick={() => setIsAddModalVisible(true)}>

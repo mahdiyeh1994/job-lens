@@ -1,4 +1,7 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
+import AddApplicationDialog from '@/components/forms/addApplicationDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { BoardApplication } from '@/lib/application';
 import { cn } from '@/lib/utils';
@@ -36,6 +39,15 @@ interface KanbanBoardProps {
 }
 
 const KanbanBoard = ({ applications }: KanbanBoardProps) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedApplication, setSelectedApplication] =
+    useState<BoardApplication | null>(null);
+
+  const handleCardClick = (application: BoardApplication) => {
+    setSelectedApplication(application);
+    setIsDialogOpen(true);
+  };
+
   return (
     <div className="overflow-x-auto pb-2">
       <div className="grid min-w-230 gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -80,6 +92,7 @@ const KanbanBoard = ({ applications }: KanbanBoardProps) => {
                     <KanbanApplicationCard
                       key={`${application.companyName}-${application.jobTitle}`}
                       application={application}
+                      onClick={() => handleCardClick(application)}
                     />
                   ))
                 )}
@@ -88,6 +101,17 @@ const KanbanBoard = ({ applications }: KanbanBoardProps) => {
           );
         })}
       </div>
+      <AddApplicationDialog
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) {
+            setSelectedApplication(null);
+          }
+        }}
+        initialValues={selectedApplication ?? undefined}
+        editingId={selectedApplication?.id}
+      />
     </div>
   );
 };
