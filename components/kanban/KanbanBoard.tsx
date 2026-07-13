@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { BoardApplication } from '@/lib/application';
 import { cn } from '@/lib/utils';
 import KanbanApplicationCard from './KanbanApplicationCard';
 
@@ -31,14 +32,7 @@ const columns = [
 ] as const;
 
 interface KanbanBoardProps {
-  applications: readonly {
-    companyName: string;
-    jobTitle: string;
-    status: 'Applied' | 'Interview' | 'Offer' | 'Rejected';
-    dateApplied: string;
-    salary: string;
-    location: 'Remote' | 'On-site' | 'Hybrid';
-  }[];
+  applications: readonly BoardApplication[];
 }
 
 const KanbanBoard = ({ applications }: KanbanBoardProps) => {

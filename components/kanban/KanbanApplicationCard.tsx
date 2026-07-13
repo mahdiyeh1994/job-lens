@@ -6,17 +6,11 @@ import {
   CalendarDays,
   Clock3,
 } from 'lucide-react';
+import type { BoardApplication } from '@/lib/application';
 import { Button } from '../ui/button';
 
 interface Props {
-  application: {
-    companyName: string;
-    jobTitle: string;
-    status: 'Applied' | 'Interview' | 'Offer' | 'Rejected';
-    dateApplied: string;
-    salary: string;
-    location: 'Remote' | 'On-site' | 'Hybrid';
-  };
+  application: BoardApplication;
 }
 
 const KanbanApplicationCard = ({ application }: Props) => {

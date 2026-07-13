@@ -1,16 +1,8 @@
 import KanbanBoard from '@/components/kanban/KanbanBoard';
 import { KanbanSummaryCards } from '@/components/kanban/KanbanSummaryCards';
+import type { BoardApplication } from '@/lib/application';
 import { prisma } from '@/lib/prisma';
 import { ClipboardList } from 'lucide-react';
-
-type BoardApplication = {
-  companyName: string;
-  jobTitle: string;
-  status: 'Applied' | 'Interview' | 'Offer' | 'Rejected';
-  dateApplied: string;
-  salary: string;
-  location: 'Remote' | 'On-site' | 'Hybrid';
-};
 
 function buildSummaryItems(applications: readonly BoardApplication[]) {
   const totalApplications = applications.length;
@@ -55,6 +47,7 @@ export default async function Home() {
       createdAt: 'desc',
     },
   });
+  console.log('applications', applications);
 
   const boardApplications: BoardApplication[] = applications.map(
     (application) => ({
