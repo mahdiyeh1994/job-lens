@@ -1,13 +1,11 @@
 import React from 'react';
 import {
-  ArrowUpRight,
   BriefcaseBusiness,
   Building2,
   CalendarDays,
   Clock3,
 } from 'lucide-react';
 import type { BoardApplication } from '@/lib/application';
-import { Button } from '../ui/button';
 
 interface Props {
   application: BoardApplication;

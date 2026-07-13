@@ -1,7 +1,10 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
-import type { ApplicationFormValues } from '@/lib/application';
+import type {
+  ApplicationFormValues,
+  ApplicationStatus,
+} from '@/lib/application';
 
 export async function saveApplication(
   data: ApplicationFormValues,
@@ -29,4 +32,16 @@ export async function saveApplication(
   });
   revalidatePath('/');
   return createdApplication;
+}
+
+export async function updateApplicationStatus(
+  id: string,
+  status: ApplicationStatus
+) {
+  const updatedApplication = await prisma.application.update({
+    where: { id },
+    data: { status },
+  });
+  revalidatePath('/');
+  return updatedApplication;
 }
