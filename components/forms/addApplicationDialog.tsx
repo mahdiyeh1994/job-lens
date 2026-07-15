@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useTransition } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,7 @@ import { saveApplication } from '@/app/actions';
 import {
   applicationSchema,
   type ApplicationFormValues,
+  type BoardApplication,
 } from '@/lib/application';
 import {
   CalendarDaysIcon,
@@ -40,6 +41,7 @@ interface AddApplicationDialogProps {
   readonly onOpenChange: (open: boolean) => void;
   readonly initialValues?: Partial<FormValues>;
   readonly editingId?: string;
+  readonly onApplicationSaved?: (application: BoardApplication) => void;
 }
 
 type FormValues = ApplicationFormValues;
@@ -60,6 +62,7 @@ export default function AddApplicationDialog({
   onOpenChange,
   initialValues,
   editingId,
+  onApplicationSaved,
 }: AddApplicationDialogProps) {
   const router = useRouter();
   const [, startTransition] = useTransition();
@@ -69,14 +72,16 @@ export default function AddApplicationDialog({
     handleSubmit,
     reset,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(applicationSchema),
     defaultValues: buildDefaultValues(initialValues),
   });
 
-  const location = watch('location');
+  const location = useWatch({
+    control,
+    name: 'location',
+  });
   const locationOptions: ApplicationFormValues['location'][] = [
     'Remote',
     'On-site',
@@ -94,10 +99,34 @@ export default function AddApplicationDialog({
 
   const isEditing = Boolean(editingId);
 
+  const normalizeSavedApplication = (application: {
+    id: string;
+    companyName: string;
+    jobTitle: string;
+    status: string;
+    dateApplied?: string | null;
+    salary?: string | null;
+    location?: string | null;
+    jobUrl?: string | null;
+    nextStep?: string | null;
+  }): BoardApplication => ({
+    id: application.id,
+    companyName: application.companyName,
+    jobTitle: application.jobTitle,
+    status: (application.status as BoardApplication['status']) ?? 'Applied',
+    dateApplied: application.dateApplied ?? '',
+    salary: application.salary ?? '',
+    location:
+      (application.location as BoardApplication['location']) ?? 'Remote',
+    jobUrl: application.jobUrl ?? '',
+    nextStep: application.nextStep ?? '',
+  });
+
   const onSubmit = (values: FormValues) => {
     startTransition(() => {
       saveApplication(values, editingId)
-        .then(() => {
+        .then((savedApplication) => {
+          onApplicationSaved?.(normalizeSavedApplication(savedApplication));
           onOpenChange(false);
           reset(buildDefaultValues());
           router.refresh();

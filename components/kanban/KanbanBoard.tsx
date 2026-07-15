@@ -91,6 +91,22 @@ const KanbanBoard = ({ applications }: KanbanBoardProps) => {
     setIsDialogOpen(true);
   };
 
+  const handleApplicationSaved = (application: BoardApplication) => {
+    setBoardApplications((currentApplications) => {
+      const existingIndex = currentApplications.findIndex(
+        (currentApplication) => currentApplication.id === application.id
+      );
+
+      if (existingIndex >= 0) {
+        const nextApplications = [...currentApplications];
+        nextApplications[existingIndex] = application;
+        return nextApplications;
+      }
+
+      return [application, ...currentApplications];
+    });
+  };
+
   const handleDragStart = (event: DragStartEvent) => {
     const draggedApplication = boardApplications.find(
       (application) => application.id === String(event.active.id)
@@ -171,6 +187,7 @@ const KanbanBoard = ({ applications }: KanbanBoardProps) => {
           }}
           initialValues={selectedApplication ?? undefined}
           editingId={selectedApplication?.id}
+          onApplicationSaved={handleApplicationSaved}
         />
       </div>
       <DragOverlay>
