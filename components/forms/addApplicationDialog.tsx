@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useTransition } from 'react';
+import { useEffect } from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -65,7 +65,6 @@ export default function AddApplicationDialog({
   onApplicationSaved,
 }: AddApplicationDialogProps) {
   const router = useRouter();
-  const [, startTransition] = useTransition();
   const {
     register,
     control,
@@ -122,19 +121,19 @@ export default function AddApplicationDialog({
     nextStep: application.nextStep ?? '',
   });
 
-  const onSubmit = (values: FormValues) => {
-    startTransition(() => {
-      saveApplication(values, editingId)
-        .then((savedApplication) => {
-          onApplicationSaved?.(normalizeSavedApplication(savedApplication));
-          onOpenChange(false);
-          reset(buildDefaultValues());
-          router.refresh();
-        })
-        .catch((error) => {
-          console.error('Failed to save application', error);
-        });
-    });
+  const onSubmit = async (values: FormValues) => {
+    try {
+      const savedApplication = await saveApplication(values, editingId);
+      console.log('Saved application:', savedApplication);
+
+      const normalizedApplication = normalizeSavedApplication(savedApplication);
+      onApplicationSaved?.(normalizedApplication);
+      onOpenChange(false);
+      reset(buildDefaultValues());
+      router.refresh();
+    } catch (error) {
+      console.error('Failed to save application', error);
+    }
   };
 
   const handleCancel = () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useMemo, useState, useTransition } from 'react';
 import {
   closestCenter,
   DndContext,
@@ -20,10 +20,13 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import AddApplicationDialog from '@/components/forms/addApplicationDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { updateApplicationStatus } from '@/app/actions';
+import { deleteApplication, updateApplicationStatus } from '@/app/actions';
 import type { ApplicationStatus, BoardApplication } from '@/lib/application';
 import { cn } from '@/lib/utils';
+import DeleteApplicationDialog from './DeleteApplicationDialog';
 import KanbanApplicationCard from './KanbanApplicationCard';
+import { KanbanSummaryCards, buildSummaryItems } from './KanbanSummaryCards';
+import { useApplicationStore } from '@/app/store/application-store';
 
 const columns = [
   {
@@ -60,11 +63,13 @@ interface ColumnDropZoneProps {
   column: (typeof columns)[number];
   cards: BoardApplication[];
   onCardClick: (application: BoardApplication) => void;
+  onCardDelete: (application: BoardApplication) => void;
 }
 
 interface SortableApplicationCardProps {
   application: BoardApplication;
   onClick: () => void;
+  onDelete: () => void;
 }
 
 const KanbanBoard = ({ applications }: KanbanBoardProps) => {
@@ -74,9 +79,17 @@ const KanbanBoard = ({ applications }: KanbanBoardProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] =
     useState<BoardApplication | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<BoardApplication | null>(
+    null
+  );
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [activeApplication, setActiveApplication] =
     useState<BoardApplication | null>(null);
   const [, startTransition] = useTransition();
+  const summaryItems = useMemo(
+    () => buildSummaryItems(boardApplications),
+    [boardApplications]
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -89,6 +102,22 @@ const KanbanBoard = ({ applications }: KanbanBoardProps) => {
   const handleCardClick = (application: BoardApplication) => {
     setSelectedApplication(application);
     setIsDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) {
+      return;
+    }
+
+    setBoardApplications((currentApplications) =>
+      currentApplications.filter(
+        (application) => application.id !== deleteTarget.id
+      )
+    );
+    setIsDeleteModalOpen(false);
+    setDeleteTarget(null);
+
+    await deleteApplication(deleteTarget.id);
   };
 
   const handleApplicationSaved = (application: BoardApplication) => {
@@ -152,6 +181,24 @@ const KanbanBoard = ({ applications }: KanbanBoardProps) => {
       void updateApplicationStatus(draggedId, targetStatus);
     });
   };
+  const handleCardDelete = (application: BoardApplication) => {
+    setDeleteTarget(application);
+    setIsDeleteModalOpen(true);
+  };
+
+  React.useEffect(() => {
+    const unsubscribe = useApplicationStore.subscribe((state, prevState) => {
+      if (
+        state.lastSavedApplicationEventId !==
+          prevState.lastSavedApplicationEventId &&
+        state.lastSavedApplication
+      ) {
+        handleApplicationSaved(state.lastSavedApplication);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   return (
     <DndContext
@@ -161,7 +208,8 @@ const KanbanBoard = ({ applications }: KanbanBoardProps) => {
       onDragEnd={handleDragEnd}
     >
       <div className="overflow-x-auto pb-2">
-        <div className="grid min-w-230 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <KanbanSummaryCards items={summaryItems} />
+        <div className="mt-5 grid min-w-230 gap-4 md:grid-cols-2 xl:grid-cols-4">
           {columns.map((column) => {
             const cards = boardApplications.filter(
               (application) => application.status === column.title
@@ -173,6 +221,7 @@ const KanbanBoard = ({ applications }: KanbanBoardProps) => {
                 column={column}
                 cards={cards}
                 onCardClick={handleCardClick}
+                onCardDelete={handleCardDelete}
               />
             );
           })}
@@ -197,6 +246,17 @@ const KanbanBoard = ({ applications }: KanbanBoardProps) => {
           </div>
         ) : null}
       </DragOverlay>
+      <DeleteApplicationDialog
+        open={isDeleteModalOpen}
+        application={deleteTarget}
+        onOpenChange={(open) => {
+          setIsDeleteModalOpen(open);
+          if (!open) {
+            setDeleteTarget(null);
+          }
+        }}
+        onConfirm={handleConfirmDelete}
+      />
     </DndContext>
   );
 };
@@ -205,6 +265,7 @@ const ColumnDropZone = ({
   column,
   cards,
   onCardClick,
+  onCardDelete,
 }: ColumnDropZoneProps) => {
   const { setNodeRef, isOver } = useDroppable({
     id: column.title,
@@ -212,7 +273,6 @@ const ColumnDropZone = ({
       status: column.title,
     },
   });
-
   return (
     <div
       ref={setNodeRef}
@@ -253,6 +313,7 @@ const ColumnDropZone = ({
                   key={application.id}
                   application={application}
                   onClick={() => onCardClick(application)}
+                  onDelete={() => onCardDelete(application)}
                 />
               ))}
             </SortableContext>
@@ -266,6 +327,7 @@ const ColumnDropZone = ({
 const SortableApplicationCard = ({
   application,
   onClick,
+  onDelete,
 }: SortableApplicationCardProps) => {
   const {
     attributes,
@@ -284,7 +346,11 @@ const SortableApplicationCard = ({
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <KanbanApplicationCard application={application} onClick={onClick} />
+      <KanbanApplicationCard
+        application={application}
+        onClick={onClick}
+        onDelete={onDelete}
+      />
     </div>
   );
 };

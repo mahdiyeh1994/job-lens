@@ -1,4 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
+import type { BoardApplication } from '@/lib/application';
+
 type Title =
   | 'Total Applications'
   | 'Active Interviews'
@@ -7,6 +9,43 @@ type Title =
 interface SummaryCardItem {
   value: string;
   title: Title;
+}
+
+export function buildSummaryItems(applications: readonly BoardApplication[]) {
+  const totalApplications = applications.length;
+  const activeInterviews = applications.filter(
+    (application) => application.status === 'Interview'
+  ).length;
+  const offersReceived = applications.filter(
+    (application) => application.status === 'Offer'
+  ).length;
+  const respondedApplications = applications.filter(
+    (application) =>
+      application.status !== 'Rejected' && application.status !== 'Applied'
+  ).length;
+  const responseRate =
+    totalApplications > 0
+      ? `${Math.round((respondedApplications / totalApplications) * 100)}%`
+      : '0%';
+
+  return [
+    {
+      title: 'Total Applications' as const,
+      value: String(totalApplications),
+    },
+    {
+      title: 'Active Interviews' as const,
+      value: String(activeInterviews),
+    },
+    {
+      title: 'Offers Received' as const,
+      value: String(offersReceived),
+    },
+    {
+      title: 'Response Rate' as const,
+      value: String(responseRate),
+    },
+  ];
 }
 
 interface KanbanSummaryCardsProps {

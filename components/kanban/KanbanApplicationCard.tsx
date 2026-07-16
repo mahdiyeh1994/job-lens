@@ -1,20 +1,21 @@
 import React from 'react';
 import {
-  BriefcaseBusiness,
   Building2,
   CalendarDays,
-  Clock3,
   DollarSign,
   MapPin,
+  Trash2,
 } from 'lucide-react';
 import type { BoardApplication } from '@/lib/application';
+import { Button } from '../ui/button';
 
 interface Props {
   application: BoardApplication;
   onClick?: () => void;
+  onDelete?: () => void;
 }
 
-const KanbanApplicationCard = ({ application, onClick }: Props) => {
+const KanbanApplicationCard = ({ application, onClick, onDelete }: Props) => {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -22,10 +23,14 @@ const KanbanApplicationCard = ({ application, onClick }: Props) => {
     }
   };
 
+  const handleDeleteClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    onDelete?.();
+  };
+
   return (
     <div
       key={`${application.companyName}-${application.jobTitle}`}
-      role="button"
       tabIndex={0}
       onClick={onClick}
       onKeyDown={handleKeyDown}
@@ -39,6 +44,15 @@ const KanbanApplicationCard = ({ application, onClick }: Props) => {
           </div>
           <p className="mt-1 text-sm text-slate-600">{application.jobTitle}</p>
         </div>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={handleDeleteClick}
+          aria-label={`Delete application for ${application.companyName}`}
+          className="text-red-500"
+        >
+          <Trash2 />
+        </Button>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">

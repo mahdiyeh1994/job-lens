@@ -45,3 +45,8 @@ export async function updateApplicationStatus(
   revalidatePath('/');
   return updatedApplication;
 }
+export async function deleteApplication(id: string) {
+  return await prisma.application.delete({
+    where: { id },
+  });
+}
