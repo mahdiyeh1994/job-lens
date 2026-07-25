@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const siteUrl = 'https://joblens.vercel.app';
+const siteUrl = 'https://job-lens-xi.vercel.app';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

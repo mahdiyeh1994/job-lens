@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'JobLens',
     description: 'Track your job applications in one place.',
-    url: 'https://joblens.vercel.app',
+    url: 'https://job-lens-xi.vercel.app',
   },
   robots: {
     index: false,
