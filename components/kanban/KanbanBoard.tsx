@@ -86,10 +86,22 @@ const KanbanBoard = ({ applications }: KanbanBoardProps) => {
   const [activeApplication, setActiveApplication] =
     useState<BoardApplication | null>(null);
   const [, startTransition] = useTransition();
+  const searchQuery = useApplicationStore((state) => state.searchQuery);
   const summaryItems = useMemo(
     () => buildSummaryItems(boardApplications),
     [boardApplications]
   );
+  const visibleApplications = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
+
+    if (!normalizedQuery) {
+      return boardApplications;
+    }
+
+    return boardApplications.filter(({ companyName, jobTitle }) =>
+      `${companyName} ${jobTitle}`.toLocaleLowerCase().includes(normalizedQuery)
+    );
+  }, [boardApplications, searchQuery]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -211,7 +223,7 @@ const KanbanBoard = ({ applications }: KanbanBoardProps) => {
         <KanbanSummaryCards items={summaryItems} />
         <div className="mt-5 grid min-w-230 gap-4 md:grid-cols-2 xl:grid-cols-4">
           {columns.map((column) => {
-            const cards = boardApplications.filter(
+            const cards = visibleApplications.filter(
               (application) => application.status === column.title
             );
 
