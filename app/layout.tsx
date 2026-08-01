@@ -17,10 +17,6 @@ export const metadata: Metadata = {
     description: 'Track your job applications in one place.',
     url: 'https://job-lens-xi.vercel.app',
   },
-  robots: {
-    index: false,
-    follow: false,
-  },
 };
 
 export default function RootLayout({
