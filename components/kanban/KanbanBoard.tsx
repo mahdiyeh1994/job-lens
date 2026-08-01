@@ -18,7 +18,6 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import AddApplicationDialog from '@/components/forms/addApplicationDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { deleteApplication, updateApplicationStatus } from '@/app/actions';
 import type { ApplicationStatus, BoardApplication } from '@/lib/application';
@@ -27,6 +26,11 @@ import DeleteApplicationDialog from './DeleteApplicationDialog';
 import KanbanApplicationCard from './KanbanApplicationCard';
 import { KanbanSummaryCards, buildSummaryItems } from './KanbanSummaryCards';
 import { useApplicationStore } from '@/app/store/application-store';
+import dynamic from 'next/dynamic';
+
+const AddApplicationDialog = dynamic(
+  () => import('@/components/forms/addApplicationDialog')
+);
 
 const columns = [
   {
