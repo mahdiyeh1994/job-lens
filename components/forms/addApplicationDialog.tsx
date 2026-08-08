@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useForm, Controller, useWatch } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -13,13 +13,6 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select';
 import ErrorMessage from '@/components/ui/errorMessage';
 import { saveApplication } from '@/app/actions';
 import {
@@ -33,6 +26,7 @@ import {
   MapPinIcon,
   BriefcaseIcon,
   Building2Icon,
+  ChevronDownIcon,
   FlagIcon,
 } from 'lucide-react';
 
@@ -190,26 +184,18 @@ export default function AddApplicationDialog({
                 Application Status <span className="text-slate-400">*</span>
               </span>
               <div>
-                <Controller
-                  control={control}
-                  name="status"
-                  render={({ field }) => (
-                    <Select
-                      onValueChange={(val) => field.onChange(val)}
-                      value={field.value}
-                    >
-                      <SelectTrigger className="h-full w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Applied">Applied</SelectItem>
-                        <SelectItem value="Interview">Interview</SelectItem>
-                        <SelectItem value="Offer">Offer</SelectItem>
-                        <SelectItem value="Rejected">Rejected</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
+                <div className="relative w-full">
+                  <select
+                    {...register('status')}
+                    className="flex h-11 w-full appearance-none items-center justify-between gap-1.5 rounded-lg border border-border-light bg-transparent px-9 py-2.5 pr-12 text-sm whitespace-nowrap text-slate-900 transition-colors outline-none select-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30 dark:text-slate-100 dark:hover:bg-input/50"
+                  >
+                    <option value="Applied">Applied</option>
+                    <option value="Interview">Interview</option>
+                    <option value="Offer">Offer</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+                  <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
+                </div>
                 <ErrorMessage>{errors.status?.message}</ErrorMessage>
               </div>
             </label>
