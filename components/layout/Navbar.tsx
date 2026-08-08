@@ -8,7 +8,8 @@ import Image from 'next/image';
 import dynamic from 'next/dynamic';
 
 const AddApplicationDialog = dynamic(
-  () => import('@/components/forms/addApplicationDialog')
+  () => import('@/components/forms/addApplicationDialog'),
+  { ssr: false }
 );
 
 interface SearchFormValues {

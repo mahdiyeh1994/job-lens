@@ -29,7 +29,8 @@ import { useApplicationStore } from '@/app/store/application-store';
 import dynamic from 'next/dynamic';
 
 const AddApplicationDialog = dynamic(
-  () => import('@/components/forms/addApplicationDialog')
+  () => import('@/components/forms/addApplicationDialog'),
+  { ssr: false }
 );
 
 const columns = [
