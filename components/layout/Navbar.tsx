@@ -1,11 +1,15 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import AddApplicationDialog from '../forms/addApplicationDialog';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { useApplicationStore } from '@/app/store/application-store';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
+
+const AddApplicationDialog = dynamic(
+  () => import('@/components/forms/addApplicationDialog')
+);
 
 interface SearchFormValues {
   search: string;
