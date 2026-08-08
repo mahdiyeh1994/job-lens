@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   title: 'JobLens — Job Application Tracker',
   description:
     'Track your job applications, interviews, and offers in one place.',
+  robots: {
+    index: true,
+    follow: true,
+  },
   openGraph: {
     title: 'JobLens',
     description: 'Track your job applications in one place.',
