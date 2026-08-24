@@ -18,7 +18,7 @@ The app is designed for job seekers who want a quick way to:
 - Add and edit dialogs for application details
 - Drag-and-drop status updates using dnd-kit
 - Summary cards showing counts by status
-- Prisma + SQLite data storage
+- Prisma + Neon PostgreSQL data storage
 - Server actions for saving and updating records
 
 ## Tech stack
@@ -27,7 +27,7 @@ The app is designed for job seekers who want a quick way to:
 - React 19
 - TypeScript
 - Prisma ORM
-- SQLite database
+- Neon PostgreSQL database
 - Tailwind CSS
 - shadcn-style UI components
 
@@ -46,20 +46,22 @@ The app is designed for job seekers who want a quick way to:
 npm install
 ```
 
-2. Generate Prisma client and prepare the local database:
+2. Add your Neon connection string to `.env.local` as `DATABASE_URL`.
+
+3. Generate Prisma client and prepare the Neon database:
 
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
-3. Start the development server:
+4. Start the development server:
 
 ```bash
 npm run dev
 ```
 
-4. Open the app in your browser at:
+5. Open the app in your browser at:
 
 ```text
 http://localhost:3000
@@ -67,4 +69,4 @@ http://localhost:3000
 
 ## Notes
 
-This project is a lightweight personal dashboard for tracking applications. The current implementation stores records locally in SQLite, which makes it easy to run and test without additional infrastructure.
+This project is a lightweight personal dashboard for tracking applications. Records are stored in Neon PostgreSQL through Prisma, so the same data is available across development and deployed environments.
