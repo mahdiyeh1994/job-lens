@@ -1,72 +1,105 @@
 # JobLens
 
-JobLens is a simple job application tracker built with Next.js. It helps you manage applications in a clean kanban-style board and move each opportunity through stages such as Applied, Interview, Offer, and Rejected.
+> A focused job application tracker that turns a scattered search into a clear, actionable workflow.
 
-## Project purpose
+**[View the live production app](https://job-lens-xi.vercel.app/)**
 
-The app is designed for job seekers who want a quick way to:
+JobLens is a full-stack job application dashboard built for keeping every opportunity visible from first application to final outcome. The kanban workflow makes it easy to see what needs attention, update next steps, and understand progress at a glance.
 
-- add new job applications
-- edit application details
-- delete applications when they are no longer relevant
-- drag applications between workflow columns
-- keep a simple overview of current application progress
+## Why this project
 
-## Main features
+Job searching creates a surprising amount of operational work: links, follow-ups, interview stages, salary notes, and application dates quickly become difficult to manage. JobLens addresses that friction with a fast, visual workspace designed around the decisions a candidate makes every day.
 
-- Kanban board for application tracking
-- Add and edit dialogs for application details
-- Drag-and-drop status updates using dnd-kit
-- Summary cards showing counts by status
-- Prisma + Neon PostgreSQL data storage
-- Server actions for saving and updating records
+## Highlights
 
-## Tech stack
+- Create, edit, and delete application records
+- Move applications between Applied, Interview, Offer, and Rejected stages
+- Drag and drop cards for quick status updates
+- Track company, role, location, salary, job URL, application date, and next step
+- See total applications, active interviews, offers, and response rate in summary cards
+- Persist data in PostgreSQL through Prisma and server actions
+- Responsive interface built for desktop and smaller screens
 
-- Next.js 16
-- React 19
-- TypeScript
-- Prisma ORM
-- Neon PostgreSQL database
-- Tailwind CSS
-- shadcn-style UI components
+## Technology
 
-## Project structure
+| Area        | Tools                                               |
+| ----------- | --------------------------------------------------- |
+| Framework   | Next.js 16, React 19                                |
+| Language    | TypeScript                                          |
+| UI          | Tailwind CSS, shadcn-style components, Lucide icons |
+| Interaction | dnd-kit, React Hook Form, Zod                       |
+| Data        | Prisma ORM, Neon PostgreSQL                         |
+| Deployment  | Vercel                                              |
 
-- `app/` — application routes and server actions
-- `components/` — UI components, dialogs, and kanban board
-- `lib/` — shared types and database helpers
-- `prisma/` — Prisma schema and database configuration
+## Architecture at a glance
 
-## Getting started
+- `app/` contains the route, layout, global styles, and server actions.
+- `components/` contains the kanban board, application cards, dialogs, forms, and navigation.
+- `lib/` contains shared application types and the Prisma client.
+- `prisma/` contains the database schema.
 
-1. Install dependencies:
+The application keeps database writes on the server with Next.js server actions. The client-side board handles interaction and sends status changes back through the application store and server layer.
+
+## Run locally
+
+### Prerequisites
+
+- Node.js 20 or newer
+- A PostgreSQL database, such as a Neon project
+
+### Setup
 
 ```bash
 npm install
 ```
 
-2. Add your Neon connection string to `.env.local` as `DATABASE_URL`.
+Create `.env.local` and add your database connection string:
 
-3. Generate Prisma client and prepare the Neon database:
+```env
+DATABASE_URL="your-neon-connection-string"
+```
+
+Generate Prisma Client and sync the schema:
 
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
-4. Start the development server:
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-5. Open the app in your browser at:
+Open [http://localhost:3000](http://localhost:3000) to use the app.
 
-```text
-http://localhost:3000
-```
+## Lighthouse results
 
-## Notes
+The production app was improved and re-tested with Lighthouse. The two reports below show the progression:
 
-This project is a lightweight personal dashboard for tracking applications. Records are stored in Neon PostgreSQL through Prisma, so the same data is available across development and deployed environments.
+| Report         | Performance | Accessibility | Best Practices | SEO |
+| -------------- | ----------: | ------------: | -------------: | --: |
+| Earlier report |          79 |            94 |             96 |  66 |
+| Latest report  |          93 |            94 |            100 | 100 |
+
+<table>
+<tr><td><img src="./screenshot/lighthouse-before.jpg" width="400"></td>
+<td><img src="./screenshot/after.jpg" width="400"></td></tr>
+<tr><td align="center">Before</td><td align="center">After</td></tr>
+</table>
+
+## What I practiced
+
+This project demonstrates practical experience with:
+
+- Building a typed full-stack workflow with Next.js and TypeScript
+- Designing reusable UI components and form validation
+- Modeling application data with Prisma
+- Implementing optimistic, interaction-heavy drag-and-drop behavior
+- Connecting a deployed Next.js app to a hosted PostgreSQL database
+- Measuring and improving a production user experience with Lighthouse
+
+## Demo video
+
+<img src="./screenshot/demo.gif" />
